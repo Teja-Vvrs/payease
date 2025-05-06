@@ -2,16 +2,18 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-const Register = ({ onRegisterSuccess }) => {
+const Register = () => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await axios.post('http://localhost:5000/api/auth/register', formData);
       alert('Registration successful! Please login.');
-      onRegisterSuccess(); // switch to login
+      navigate('/login'); // Redirect to login page
     } catch (err) {
       alert(err.response.data.message || 'Registration failed');
     }
@@ -70,7 +72,7 @@ const Register = ({ onRegisterSuccess }) => {
           </div>
           <button
             type="submit"
-            className="w-full py-3 bg-gradient-to-r from-[#A0522D] to-[#8B4513] text-white font-semibold rounded-lg hover:from-[#8B4513] hover:to-[#6F3A0F] focus:outline-none focus:ring-2 focus:ring-[#8B4513] focus:ring-offset-2 focus:ring-offset-white transition-all duration-300"
+            className="w-full py-3 bg-gradient-to-r from-[#A0522D] to-[#8B4513] text-white font-semibold rounded-lg hover:from-[#8B4513] hover:to-[#6F3A0F] focus:outline-none focus:ring-2 focus:ring-[#8B4513] focus:ring-offset-2 focus:ring-offset-white transition-all duration-300 cursor-pointer"
           >
             Sign Up
           </button>
