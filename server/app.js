@@ -19,7 +19,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
-// const tripRoutes = require('./routes/trips');
+const tripRoutes = require('./routes/tripRoutes');
 // const expenseRoutes = require('./routes/expenses');
 
 const app = express();
@@ -36,7 +36,7 @@ mongoose.connect(process.env.MONGO_URI)
 
 // API Routes
 app.use('/api/auth', authRoutes);
-// app.use('/api/trips', tripRoutes);
+app.use('/api/trips', tripRoutes);
 // app.use('/api/expenses', expenseRoutes);
 
 // Root Route

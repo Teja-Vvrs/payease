@@ -4,15 +4,32 @@ import axios from 'axios';
 const CreateTrip = ({ onTripCreated }) => {
   const [formData, setFormData] = useState({ name: '', totalBudget: '', members: '' });
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  // Email validation function
+  const validateEmail = (email) => {
+    const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    return regex.test(email);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const memberEmails = formData.members
+      .split(',')
+      .map((email) => email.trim())
+      .filter((email) => email);
+
+    // Validate emails
+    for (let email of memberEmails) {
+      if (!validateEmail(email)) {
+        setError('Invalid email format');
+        return;
+      }
+    }
+
     try {
       const token = localStorage.getItem('token');
-      const memberEmails = formData.members
-        .split(',')
-        .map((email) => email.trim())
-        .filter((email) => email);
       const response = await axios.post(
         'http://localhost:5000/api/trips',
         {
@@ -24,9 +41,11 @@ const CreateTrip = ({ onTripCreated }) => {
       );
       setFormData({ name: '', totalBudget: '', members: '' });
       setError('');
+      setSuccess('Trip created successfully!');
       onTripCreated(response.data);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create trip');
+      setSuccess('');
     }
   };
 
@@ -81,9 +100,8 @@ const CreateTrip = ({ onTripCreated }) => {
               onChange={(e) => setFormData({ ...formData, members: e.target.value })}
             />
           </div>
-          {error && (
-            <p className="text-red-400 text-sm text-center">{error}</p>
-          )}
+          {error && <p className="text-red-400 text-sm text-center">{error}</p>}
+          {success && <p className="text-green-400 text-sm text-center">{success}</p>}
           <button
             type="submit"
             className="w-full py-3 bg-gradient-to-r from-[#A0522D] to-[#8B4513] text-white font-semibold rounded-lg hover:from-[#8B4513] hover:to-[#6F3A0F] focus:outline-none focus:ring-2 focus:ring-[#8B4513] focus:ring-offset-2 focus:ring-offset-white transition-all duration-300"

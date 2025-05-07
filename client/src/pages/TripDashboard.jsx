@@ -6,31 +6,53 @@ const TripDashboard = () => {
   const { tripId } = useParams();
   const [trip, setTrip] = useState(null);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
 
+  // Fetch trip data from the backend
   useEffect(() => {
     const fetchTrip = async () => {
       try {
         const token = localStorage.getItem('token');
+        if (!token) {
+          setError('No token found. Please log in.');
+          setLoading(false);
+          return;
+        }
+
         const response = await axios.get(`http://localhost:5000/api/trips/${tripId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+
         setTrip(response.data);
+        setLoading(false);
         setError('');
       } catch (err) {
+        setLoading(false);
         setError(err.response?.data?.message || 'Failed to load trip');
       }
     };
+
     fetchTrip();
   }, [tripId]);
 
-  if (!trip) {
+  // If data is still loading or an error exists
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#FFFFF0]">
-        <p className="text-black text-lg">{error || 'Loading...'}</p>
+        <p className="text-black text-lg">Loading...</p>
       </div>
     );
   }
 
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#FFFFF0]">
+        <p className="text-red-500 text-lg">{error}</p>
+      </div>
+    );
+  }
+
+  // Calculate total expenses and remaining balance
   const totalExpenses = trip.expenses.reduce((sum, expense) => sum + expense.amount, 0);
   const remainingBalance = trip.totalBudget - totalExpenses;
 
@@ -51,7 +73,6 @@ const TripDashboard = () => {
           </div>
         </div>
         <h1 className="text-4xl font-bold text-center text-black mb-8">{trip.name}</h1>
-        {error && <p className="text-red-400 text-sm text-center mb-4">{error}</p>}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-xl font-semibold text-black mb-4">Trip Overview</h2>
